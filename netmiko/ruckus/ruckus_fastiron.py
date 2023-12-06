@@ -1,3 +1,4 @@
+import paramiko
 import re
 import time
 from socket import socket
@@ -9,6 +10,16 @@ from netmiko.cisco_base_connection import CiscoSSHConnection
 
 class RuckusFastironBase(CiscoSSHConnection):
     """Ruckus FastIron aka ICX support."""
+
+    def _modify_connection_params(self) -> None:
+        """Modify connection parameters prior to SSH connection."""
+        paramiko_transport = getattr(paramiko, "Transport")
+        paramiko_transport._preferred_kex = (
+            "diffie-hellman-group14-sha1",
+            "diffie-hellman-group-exchange-sha1",
+            "diffie-hellman-group-exchange-sha256",
+            "diffie-hellman-group1-sha1"
+        )
 
     def session_preparation(self) -> None:
         """FastIron requires to be enable mode to disable paging."""
